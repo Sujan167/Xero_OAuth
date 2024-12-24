@@ -60,7 +60,7 @@ async def refresh_token(request: Request, response: Response):
         raise HTTPException(status_code=401, detail="Refresh token missing")
 
     try:
-        new_access_token, expires_in = refresh_access_token(refresh_token)
+        new_access_token, expires_in = await refresh_access_token(refresh_token)
         # Update the access token cookie
         response.set_cookie(
             key="access_token",
