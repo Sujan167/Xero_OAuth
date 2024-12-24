@@ -4,8 +4,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    XERO_CLIENT_ID = os.getenv("XERO_CLIENT_ID")
-    XERO_CLIENT_SECRET = os.getenv("XERO_CLIENT_SECRET")
-    XERO_REDIRECT_URI = os.getenv("XERO_REDIRECT_URI")
-    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./test.db")
-    TOKEN_EXPIRY_BUFFER = 300  # Buffer in seconds for token expiry
+    CLIENT_ID = os.getenv("XERO_CLIENT_ID")
+    CLIENT_SECRET = os.getenv("XERO_CLIENT_SECRET")
+    REDIRECT_URI = os.getenv("XERO_REDIRECT_URI")
+    SCOPE = os.getenv("XERO_SCOPE", "openid profile email accounting.transactions accounting.reports.read accounting.settings accounting.settings.read offline_access")
+    AUTHORIZATION_URL = "https://login.xero.com/identity/connect/authorize"
+    TOKEN_URL = "https://identity.xero.com/connect/token"
+    CHART_OF_ACCOUNTS_URL = "https://api.xero.com/api.xro/2.0/Accounts"
+    TENANT_ID_URL="https://api.xero.com/connections"
