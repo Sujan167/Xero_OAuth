@@ -5,7 +5,7 @@ from typing import Dict, List
 from app.config import Config
 from app.models.account_model import Account
 import httpx
-
+from app.utils.logger import logger
 
 async def fetch_chart_of_accounts(access_token: str, tenant_id: str):
     '''
@@ -16,12 +16,13 @@ async def fetch_chart_of_accounts(access_token: str, tenant_id: str):
         "Accept": "application/json",
         "Xero-Tenant-id": tenant_id
     }
-
+    logger.info("Fetching Chart of Accounts")
     # Using httpx for asynchronous HTTP requests
     async with httpx.AsyncClient() as client:
         response = await client.get(Config.CHART_OF_ACCOUNTS_URL, headers=headers)
 
     if response.status_code != 200:
+        logger.error("Failed to fetch Chart of Accounts")
         raise Exception("Failed to fetch Chart of Accounts", response.json())
 
     return response.json()
@@ -34,12 +35,13 @@ async def get_tenant_id(access_token: str):
     headers = {
         "Authorization": f"Bearer {access_token}",
     }
-
+    logger.info("Fetching Tenant ID")
     # Use httpx to make an asynchronous GET request
     async with httpx.AsyncClient() as client:
         response = await client.get(Config.TENANT_ID_URL, headers=headers)
 
     if response.status_code != 200:
+        logger.error("Failed to fetch Tenant ID")
         raise Exception("Failed to fetch Tenant ID", response.json())
 
     return response.json()[0]["tenantId"]
@@ -49,6 +51,7 @@ BATCH_SIZE = 50  # Set the batch size (you can adjust this value)
 
 
 async def create_accounts_service(accounts_data: List[Dict], db: Session):
+    logger.info("Creating accounts in the database")
     count = 0  # Counter to track the number of processed records in the current batch
 
     for account_data in accounts_data:
@@ -56,11 +59,13 @@ async def create_accounts_service(accounts_data: List[Dict], db: Session):
         updated_date = Account.parse_updated_date(
             account_data['UpdatedDateUTC'])
 
+        logger.info(f"Processing account: {account_data['Name']}")
         # Check if the account already exists based on AccountID (or another unique field)
         existing_account = db.query(Account).filter(
             Account.AccountID == account_data["AccountID"]).first()
 
         if existing_account:
+            logger.info(f"Account {account_data['Name']} already exists")
             # Account already exists, skip insertion
             continue
 
@@ -92,24 +97,18 @@ async def create_accounts_service(accounts_data: List[Dict], db: Session):
 
             # Commit in batches
             if count >= BATCH_SIZE:
+                logger.info(f"Committing batch of {count} accounts")
                 db.commit()
                 count = 0  # Reset counter after commit
 
-        except IntegrityError as e:
-            # Handle integrity errors (e.g., duplicate entries)
-            db.rollback()  # Rollback the transaction to maintain session state
-            # Log or handle the error
-            print(f"IntegrityError occurred: {e.orig}")
-            continue  # Skip this account and proceed to the next one
-
         except Exception as e:
-            # Catch any other exceptions
             db.rollback()  # Rollback the transaction
-            print(f"Unexpected error occurred: {e}")  # Log the error
+            logger.error(f"Unexpected error occurred: {e}")  # Log the error
             continue  # Skip this account and proceed to the next one
 
     # Commit any remaining accounts if they haven't been committed yet
     if count > 0:
+        logger.info(f"Committing remaining {count} accounts")
         db.commit()
 
     return True

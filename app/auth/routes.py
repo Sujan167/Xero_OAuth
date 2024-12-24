@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Response, Request
 from fastapi.responses import RedirectResponse
 from app.auth.service import get_access_token, get_authorization_url, refresh_access_token
-
+from app.utils.logger import logger
 auth_router = APIRouter()
 
 
@@ -20,10 +20,12 @@ async def xero_callback(code: str, response: Response):
     Get the authorization code and exchange it for an access token
     '''
     if not code:
-        raise HTTPException(
-            status_code=400, detail="Authorization code is missing")
-    token = get_access_token(code)
+        logger.error("Authorization code is missing")
+        raise HTTPException(status_code=400, detail="Authorization code is missing")
+    token = await get_access_token(code)
     if token:
+        logger.info("Login successful")
+        logger.info("Setting access token in cookies")
         # Store token in HTTP-only cookie
         response.set_cookie(
             key="access_token",
@@ -43,8 +45,8 @@ async def xero_callback(code: str, response: Response):
         )
         return {"msg": "Login successful", "token": token}
     else:
-        raise HTTPException(
-            status_code=400, detail="No access token in response")
+        logger.error("No access token in response")
+        raise HTTPException(status_code=400, detail="No access token in response")
 
 
 @auth_router.get("/refresh")
@@ -54,6 +56,7 @@ async def refresh_token(request: Request, response: Response):
     """
     refresh_token = request.cookies.get("refresh_token")
     if not refresh_token:
+        logger.error("Refresh token missing")        
         raise HTTPException(status_code=401, detail="Refresh token missing")
 
     try:
@@ -67,6 +70,7 @@ async def refresh_token(request: Request, response: Response):
             samesite="Strict",
             max_age=expires_in
         )
+        logger.info("Token refreshed")
         return {"msg": "Token refreshed", "access_token": new_access_token}
     except Exception as e:
         raise HTTPException(status_code=401, detail=str(e))

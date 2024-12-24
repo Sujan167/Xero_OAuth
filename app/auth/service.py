@@ -1,14 +1,14 @@
 import httpx
 from app.config import Config
-
+from app.utils.logger import logger
 
 def get_authorization_url():
     """
     Generate the Xero authorization URL
     """
+    logger.info("Generating authorization URL")
     return (
-        f"{Config.AUTHORIZATION_URL}?response_type=code&client_id={
-            Config.CLIENT_ID}&"
+        f"{Config.AUTHORIZATION_URL}?response_type=code&client_id={Config.CLIENT_ID}&"
         f"redirect_uri={Config.REDIRECT_URI}&scope={Config.SCOPE}&state=123"
     )
 
@@ -27,12 +27,10 @@ async def get_access_token(auth_code: str):
     headers = {
         "Content-Type": "application/x-www-form-urlencoded"
     }
-
+    logger.info("Fetching access token")
     # Use httpx for asynchronous HTTP requests
     async with httpx.AsyncClient() as client:
-        response = await client.post(
-            Config.TOKEN_URL, data=token_payload, headers=headers
-        )
+        response = await client.post(Config.TOKEN_URL, data=token_payload, headers=headers)
 
     if response.status_code != 200:
         raise Exception("Failed to fetch access token", response.json())
@@ -55,11 +53,10 @@ async def refresh_access_token(refresh_token: str):
         "Content-Type": "application/x-www-form-urlencoded"
     }
 
+    logger.info("Refreshing access token")
     # Use httpx for asynchronous HTTP requests
     async with httpx.AsyncClient() as client:
-        response = await client.post(
-            Config.TOKEN_URL, data=token_payload, headers=headers
-        )
+        response = await client.post(Config.TOKEN_URL, data=token_payload, headers=headers)
 
     if response.status_code != 200:
         raise Exception("Failed to refresh access token", response.json())
