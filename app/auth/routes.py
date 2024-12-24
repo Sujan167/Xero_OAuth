@@ -49,7 +49,7 @@ async def xero_callback(code: str, response: Response):
         raise HTTPException(status_code=400, detail="No access token in response")
 
 
-@auth_router.get("/refresh")
+@auth_router.post("/refresh")
 async def refresh_token(request: Request, response: Response):
     """
     Refresh the access token using the refresh token stored in the cookies
