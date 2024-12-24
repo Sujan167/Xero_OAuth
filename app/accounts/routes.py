@@ -1,12 +1,12 @@
-from fastapi import APIRouter, HTTPException, Request
-from app.accounts.service import fetch_chart_of_accounts
-from app.accounts.service import get_tenant_id
+from fastapi import APIRouter, HTTPException, Request, Depends
+from app.database.session import get_db
+from sqlalchemy.orm import Session
+from app.accounts.service import fetch_chart_of_accounts, get_tenant_id, create_accounts_service
 
 accounts_router = APIRouter()
 
-
 @accounts_router.get("/chart-of-accounts")
-async def get_chart_of_accounts(request: Request):
+async def get_chart_of_accounts(request: Request, db: Session = Depends(get_db)):
     """
     Retrieve Chart of Accounts using the access token from cookies
     """
@@ -17,8 +17,9 @@ async def get_chart_of_accounts(request: Request):
 
     try:
         tenant_id = await get_tenant_id(access_token)
-        accounts = await fetch_chart_of_accounts(access_token, tenant_id)
-        return {"data": accounts}
+        data = await fetch_chart_of_accounts(access_token, tenant_id)
+        await create_accounts_service(data['Accounts'], db)
+        return {"data": data}
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error fetching chart of accounts: {str(e)}")
