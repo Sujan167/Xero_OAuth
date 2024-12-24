@@ -1,6 +1,6 @@
 # FastAPI Xero Integration
 
-This project is a FastAPI application that integrates with Xero's OAuth2 authentication and API to manage accounts.
+This project is a FastAPI application that integrates with Xero's OAuth2 authentication and API interaction.
 
 ## Setup
 
@@ -46,46 +46,6 @@ This project is a FastAPI application that integrates with Xero's OAuth2 authent
     python main.py
     ```
 
-## Project Structure
-.
-├── __pycache__/
-├── .env
-├── .env-sample
-├── .gitignore
-├── app/
-│   ├── __init__.py
-│   ├── accounts/
-│   │   ├── __init__.py
-│   │   ├── routes.py
-│   │   ├── schemas.py
-│   │   └── service.py
-│   ├── auth/
-│   │   ├── __init__.py
-│   │   ├── routes.py
-│   │   └── service.py
-│   ├── config.py
-│   ├── database/
-│   │   ├── __init__.py
-│   │   └── session.py
-│   ├── models/
-│   │   ├── __init__.py
-│   │   └── account_model.py
-│   ├── test/
-│   │   ├── __init__.py
-│   │   ├── test_auth.py
-│   │   └── test_xero.py
-│   └── utils/
-│       ├── __init__.py
-│       └── logger.py
-├── certs/
-│   ├── cert.pem
-│   ├── csr.pem
-│   └── key.pem
-├── main.py
-├── README.md
-├── requirements.txt
-└── .gitignore
-
 
 ## Endpoints
 
@@ -101,7 +61,7 @@ This project is a FastAPI application that integrates with Xero's OAuth2 authent
 
 ## Configuration
 
-The application uses environment variables for configuration. These variables are defined in the [.env](http://_vscodecontentref_/24) file:
+The application uses environment variables for configuration. These variables are defined in the **.env**file:
 
 - `XERO_CLIENT_ID`: Your Xero client ID.
 - `XERO_CLIENT_SECRET`: Your Xero client secret.
