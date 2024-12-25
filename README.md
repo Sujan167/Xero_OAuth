@@ -69,6 +69,10 @@ The application uses environment variables for configuration. These variables ar
 - `DATABASE_URL`: The database connection URL.
 - `ENVIRONMENT`: The environment in which the application is running (e.g., `DEV` or `PROD`).
 
+## Example endpoint
+- **https://sujanb.com.np/auth/login**: Redirects user to Xero's OAuth authorization page.
+- **https://sujanb.com.np/account/chart-of-accounts**: Retrieves the Chart of Accounts from Xero and stores them in the database.
+
 ## Logging
 
 The application logs information to both the console and a log file located at app/utils/app.log.
